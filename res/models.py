@@ -106,7 +106,11 @@ class Session(models.Model):
     admin_user = models.ForeignKey(User, related_name='admin_user')
     resolution_user = models.ForeignKey(User, related_name='resolution_user')
 
+    def __unicode__(self):
+        return self.name
+
 class Resolution(models.Model):
+    session = models.ForeignKey(Session)
 
     #All options for names of EYP Committees and their names
     AFCO = 'AFCO'
@@ -168,10 +172,13 @@ class Resolution(models.Model):
         (THREE, 'III'),
         (FOUR, 'IV'),
     )
-    number = models.CharField(max_length=3, choices=COMMITTEE_NUMBERS, default=NONE)
+    number = models.CharField(max_length=3, choices=COMMITTEE_NUMBERS, default=NONE, blank=True, null=True)
 
     #The committee Topic
     topic = models.TextField()
+
+    def __unicode__(self):
+        return self.name
 
 class Person(models.Model):
     #Which session and resolution the person should be connected with
@@ -278,6 +285,9 @@ class Person(models.Model):
     #Finally we need the name of the person in question
     name = models.CharField(max_length=100)
 
+    def __unicode__(self):
+        return self.name
+
 class Clause(models.Model):
     #First we need to tie the clause to a session and resolution
     session = models.ForeignKey(Session)
@@ -298,6 +308,9 @@ class Clause(models.Model):
     #We need a position in the grand scheme of things.
     position = models.PositiveSmallIntegerField()
 
+    def __unicode__(self):
+        return self.clause_type
+
 class ClauseContent(models.Model):
     #We need a session, resolution and clause
     session = models.ForeignKey(Session)
@@ -310,6 +323,9 @@ class ClauseContent(models.Model):
     #Finally we need the content of the clause
     content = models.TextField()
 
+    def __unicode__(self):
+        return self.create_time.strftime("%H:%M, %Y-%m-%d")
+
 class FactSheet(models.Model):
     #We need a session and resolution to connect the factsheet to
     session = models.ForeignKey(Session)
@@ -317,3 +333,6 @@ class FactSheet(models.Model):
 
     #Since we have no version control on the factsheets, we can go ahead and add the content
     content = models.TextField()
+
+    def __unicode__(self):
+        return self.resolution.name
