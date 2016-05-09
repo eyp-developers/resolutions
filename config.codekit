@@ -938,17 +938,6 @@
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0
 		},
-	"\/lib\/python2.7\/site-packages\/MySQL_python-1.2.5.dist-info\/metadata.json": {
-		"fileType": 524288,
-		"ignore": 1,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/lib\/python2.7\/site-packages\/MySQL_python-1.2.5.dist-info\/metadata.json",
-		"orderOutput": 0,
-		"outputAbbreviatedPath": "\/lib\/python2.7\/site-packages\/MySQL_python-1.2.5.dist-info\/metadata-min.json",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1
-		},
 	"\/lib\/python2.7\/site-packages\/pip-7.1.2.dist-info\/metadata.json": {
 		"fileType": 524288,
 		"ignore": 1,
@@ -1000,17 +989,6 @@
 		"inputAbbreviatedPath": "\/lib\/python2.7\/site-packages\/wheel\/test\/pydist-schema.json",
 		"orderOutput": 0,
 		"outputAbbreviatedPath": "\/lib\/python2.7\/site-packages\/wheel\/test\/pydist-schema-min.json",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1
-		},
-	"\/pip-selfcheck.json": {
-		"fileType": 524288,
-		"ignore": 1,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/pip-selfcheck.json",
-		"orderOutput": 0,
-		"outputAbbreviatedPath": "\/pip-selfcheck-min.json",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1
