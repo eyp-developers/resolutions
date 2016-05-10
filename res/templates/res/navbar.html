@@ -1,41 +1,16 @@
 {% load staticfiles %}
+<div class="container">
+  <div class="header clearfix">
+    <nav class="navbar" role="navigation">
 
-<nav class="navbar navbar-inverse shadow-z-1" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="{% url 'res:home'%}">Resolutions</a>
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-    <!-- /.navbar-header -->
-      <!--/.nav navbar-nav-->
-
-      <ul class="nav navbar-nav navbar-right">
-
-        <li class="dropdown">
-          <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <!-- {% if user.is_authenticated = False %} -->
-            <li><a href="#">Login</a></li>
-            <!-- {% endif %} {% if user.is_staff %} -->
-            <li><a href="/admin/">Go to Admin</a></li>
-            <!-- {% endif %} {% if user.is_authenticated %} -->
-            <li><a href="#">Logout</a></li>
-            <!-- {% endif %} -->
-        </li>
-        </ul>
+      <ul class="nav nav-pills pull-right">
+        <li role="presentation" class="active"><a href="#">Home</a></li>
+        <li role="presentation"><a href="#">Profile</a></li>
+        <li role="presentation"><a href="#">Messages</a></li>
       </ul>
-
-
-
-    </div>
-    <!--/.navbar-collapse -->
+      <!--/.container -->
+    </nav>
+    <h3 class="text-muted">Resolution Typing</h3>
+    <!--/.navbar -->
   </div>
-  <!--/.container -->
-</nav>
-<!--/.navbar -->
+</div>
