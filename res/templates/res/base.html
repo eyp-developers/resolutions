@@ -14,7 +14,7 @@
         <!-- Place favicon.ico in the root directory -->
 
         <link rel="stylesheet" href="{% static 'res/css/normalize.css' %}">
-        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'res/css/bootstrap.min.css' %}">
         <link rel="stylesheet" href="{% static 'res/css/main.css' %}">
         <script src="{% static 'res/js/modernizr-2.8.3.min.js' %}"></script>
     </head>
@@ -67,8 +67,8 @@
       {% endif %}
     </div> <!-- /container -->
 
-        <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        <script src="{% static 'res/js/jquery.min.js' %}" ></script>
+        <script src="{% static 'res/js/bootstrap.min.js' %}" ></script>
 
         {% block footer_scripts %}
         {% endblock %}
