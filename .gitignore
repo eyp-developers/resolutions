@@ -1,4 +1,7 @@
 *.sqlite3
 *.DS_Store
 *.pyc
+*.codekit
+.idea/*
+.idea/.*
 __pycache__
