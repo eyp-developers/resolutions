@@ -28,7 +28,20 @@
     <tbody>
     {% for ic in ics %}
     <tr>
-        <td>{{ ic.position }}</td>
+        <td>
+            <form id="{{ ic.id }}" class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}" style="width: 100px; margin: 0px">
+                {% csrf_token %}
+                <input type="hidden" name="clause" value="{{ ic.id }}">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="position" value="{{ ic.position }}">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-search"><span class="glyphicon glyphicon-ok"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </td>
         <td>{{ ic.latest_content|safe }}</td>
         <td><a class="btn btn-primary btn-sm" href="{% url 'res:clause' ic.id %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
     </tr>
@@ -40,7 +53,23 @@
 <h3>Operative Clauses:</h3>
 {% if subtopics %}
 {% for sub in subtopics %}
+{% if sub.position != 0 %}
+<form id="sub-{{ sub.id }}" class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="subtopic" value="{{ sub.id }}">
+    <div class="form-group">
+        <label for="pos" ><h4>{{ sub.name }}</h4></label>
+        <div class="input-group">
+            <input id="pos" type="number" class="form-control" name="position" value="{{ sub.position }}">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-search"><span class="glyphicon glyphicon-ok"></span></button>
+                        </span>
+        </div>
+    </div>
+</form>
+{% else %}
 <h4>{{ sub.name }}  <small>Position: {{ sub.position }}</small></h4>
+{% endif %}
 <table class="table table-striped">
     <thead>
     <tr>
@@ -51,11 +80,24 @@
     </thead>
     <tbody>
     {% for clause in sub.clauses %}
-        <tr>
-            <td>{{ clause.position }}</td>
-            <td>{{ clause.latest_content|safe }}</td>
-            <td><a class="btn btn-primary btn-sm" href="{% url 'res:clause' clause.id %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
-        </tr>
+    <tr>
+        <td>
+            <form id="{{ clause.id }}" class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}" style="width: 100px; margin: 0px">
+                {% csrf_token %}
+                <input type="hidden" name="clause" value="{{ clause.id }}">
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="position" value="{{ clause.position }}">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-search"><span class="glyphicon glyphicon-ok"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </td>
+        <td>{{ clause.latest_content|safe }}</td>
+        <td><a class="btn btn-primary btn-sm" href="{% url 'res:clause' clause.id %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+    </tr>
     {% endfor %}
     </tbody>
 </table>

@@ -69,13 +69,10 @@
 
         <script src="{% static 'res/js/jquery.min.js' %}" ></script>
         <script src="{% static 'res/js/bootstrap.min.js' %}" ></script>
+        <script src="{% static 'res/js/main.js' %}" ></script>
 
         {% block footer_scripts %}
         {% endblock %}
-
-        <script>
-          $.material.init()
-        </script>
 
         {% if analytics %}
             <script>
