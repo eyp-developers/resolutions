@@ -14,4 +14,51 @@
         <p>{{ committee.submitted_by }}</p>
     </div>
 </div>
+
+<h3>Introductory Clauses:</h3>
+{% if ics %}
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Position</th>
+        <th>Content</th>
+        <th>Edit</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ic in ics %}
+    <tr>
+        <td>{{ ic.position }}</td>
+        <td>{{ ic.latest_content|safe }}</td>
+        <td><a class="btn btn-primary btn-sm" href="{% url 'res:clause' ic.id %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+    </tr>
+    {% endfor%}
+    </tbody>
+</table>
+{% endif %}
+
+<h3>Operative Clauses:</h3>
+{% if subtopics %}
+{% for sub in subtopics %}
+<h4>{{ sub.name }}  <small>Position: {{ sub.position }}</small></h4>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Position</th>
+        <th>Content</th>
+        <th>Edit</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for clause in sub.clauses %}
+        <tr>
+            <td>{{ clause.position }}</td>
+            <td>{{ clause.latest_content|safe }}</td>
+            <td><a class="btn btn-primary btn-sm" href="{% url 'res:clause' clause.id %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+{% endif %}
 {% endblock %}

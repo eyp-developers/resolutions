@@ -67,10 +67,44 @@ def session(request, session_id):
 def committee(request, committee_id):
     com = Committee.objects.get(pk=committee_id)
 
+    operatives = Clause.objects.filter(committee=com).filter(clause_type='OC').order_by('position')
+    subtopics = Subtopic.objects.filter(committee=com)
+    subs = []
+
+    no_subtopic = []
+    for c in operatives:
+        if c.subtopic is None:
+            no_subtopic.append(c)
+
+    if len(no_subtopic) > 0:
+        no_subs = {
+            'name': 'No Subtopic',
+            'position': 0,
+            'clauses': no_subtopic
+        }
+        subs.append(no_subs)
+
+    for subtopic in subtopics:
+        theseclauses = operatives.filter(subtopic=subtopic).order_by('position')
+        sub = {
+            'name': subtopic.name,
+            'position': subtopic.position,
+            'clauses': theseclauses
+        }
+        subs.append(sub)
+
+    introductory = Clause.objects.filter(committee=com).filter(clause_type='IC')
+
     context = {
         'full_name': com.full_name(),
         'short_name': com.short_name(),
-        'committee': com
+        'committee': com,
+        'subtopics': subs,
+        'ics': introductory
     }
 
     return render(request, 'res/committee.html', context)
+
+
+def clause(request, clause_id):
+    return render(request, 'res/clause.html')

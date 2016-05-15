@@ -119,6 +119,17 @@ class Committee(models.Model):
         return self.short_name()
 
 
+class Subtopic(models.Model):
+    committee = models.ForeignKey(Committee)
+
+    name = models.CharField(max_length=200)
+
+    position = models.PositiveSmallIntegerField()
+
+    def __unicode__(self):
+        return self.name + ', ' + self.committee.short_name()
+
+
 class Clause(models.Model):
     #First we need to tie the clause to committee
     committee = models.ForeignKey(Committee)
@@ -138,6 +149,9 @@ class Clause(models.Model):
     #We need a position in the grand scheme of things.
     position = models.PositiveSmallIntegerField()
 
+    #Clauses can also be connected with a subtopic
+    subtopic = models.ForeignKey(Subtopic, blank=True, null=True)
+
     def last_edited(self):
         content = ClauseContent.objects.filter(clause=self).order_by('timestamp')
 
@@ -147,15 +161,32 @@ class Clause(models.Model):
             return content[0].timestamp
 
     def latest_content(self):
-        content = SubClauseContent.objects.filter(clause=self).order_by('timestamp')
+        content = ClauseContent.objects.filter(clause=self).order_by('timestamp')
+        subclauses = SubClause.objects.filter(clause=self).order_by('position')
 
         if content.count() == 0:
             return "No Content Yet!"
         else:
-            return content[0].content
+            subs = []
+            if len(subclauses) > 0:
+                for sub in subclauses:
+                    subcontent = SubClauseContent.objects.filter(subclause=sub).order_by('timestamp')
+                    if subcontent.count() > 0:
+                        subs.append(subcontent[0].content)
+                if len(subs) > 0:
+                    full_clause = content[0].content + '<br><ul>'
+                    for sub in subs:
+                        full_clause += '<li>' + sub + '</li>'
+                    full_clause += '</ul>'
+                    return full_clause
+                else:
+                    return content[0].content
+
+            else:
+                return content[0].content
 
     def __unicode__(self):
-        return self.clause_type
+        return self.latest_content()
 
 
 class ClauseContent(models.Model):
@@ -169,7 +200,7 @@ class ClauseContent(models.Model):
     content = models.TextField()
 
     def __unicode__(self):
-        return self.create_time.strftime("%H:%M, %Y-%m-%d") + ": " + self.content
+        return self.timestamp.strftime("%H:%M, %Y-%m-%d") + ": " + self.content
 
 
 class SubClause(models.Model):
@@ -180,7 +211,7 @@ class SubClause(models.Model):
     creation_time = models.DateTimeField(auto_now_add=True)
 
     def last_edited(self):
-        content = SubClauseContent.objects.filter(clause=self).order_by('timestamp')
+        content = SubClauseContent.objects.filter(subclause=self).order_by('timestamp')
 
         if content.count() == 0:
             return self.creation_time
@@ -188,7 +219,7 @@ class SubClause(models.Model):
             return content[0].timestamp
 
     def latest_content(self):
-        content = SubClauseContent.objects.filter(clause=self).order_by('timestamp')
+        content = SubClauseContent.objects.filter(subclause=self).order_by('timestamp')
 
         if content.count() == 0:
             return "No Content Yet!"
@@ -196,7 +227,7 @@ class SubClause(models.Model):
             return content[0].content
 
     def __unicode__(self):
-        return self.position + ": " + self.latest_content()
+        return str(self.position) + ": " + self.latest_content()
 
 
 class SubClauseContent(models.Model):
@@ -207,15 +238,7 @@ class SubClauseContent(models.Model):
     content = models.TextField()
 
     def __unicode__(self):
-        return self.create_time.strftime("%H:%M, %Y-%m-%d") + ": " + self.content
-
-
-class Subtopic(models.Model):
-    committee = models.ForeignKey(Committee)
-
-    name = models.CharField(max_length=200)
-
-    position = models.PositiveSmallIntegerField()
+        return self.timestamp.strftime("%H:%M, %Y-%m-%d") + ": " + self.content
 
 
 class FactSheet(models.Model):

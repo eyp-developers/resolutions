@@ -9,6 +9,16 @@ class CommitteeInline(admin.StackedInline):
     extra = 0
 
 
+class ClauseInline(admin.StackedInline):
+    model = ClauseContent
+    extra = 0
+
+
+class SubClauseInline(admin.StackedInline):
+    model = SubClauseContent
+    extra = 0
+
+
 #Setting up the session admin
 class SessionAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -32,7 +42,9 @@ class SubtopicAdmin(admin.ModelAdmin):
 
 
 class ClauseAdmin(admin.ModelAdmin):
-    list_display = ('committee', 'clause_type', 'last_edited', 'position')
+    list_display = ('committee', 'subtopic', 'clause_type', 'last_edited', 'position')
+
+    inlines = [ClauseInline]
 
 
 class ClauseContentAdmin(admin.ModelAdmin):
@@ -41,6 +53,8 @@ class ClauseContentAdmin(admin.ModelAdmin):
 
 class SubClauseAdmin(admin.ModelAdmin):
     list_display = ('clause', 'last_edited', 'position')
+
+    inlines = [SubClauseInline]
 
 
 class SubClauseContentAdmin(admin.ModelAdmin):
