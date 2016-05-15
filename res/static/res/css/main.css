@@ -1,9 +1,8 @@
-.header {
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e5e5; }
+h1, h2, h3, h4, h5, h6, p, a, ul, li {
+  font-family: 'Source Sans Pro', sans-serif; }
 
-/* Make the masthead heading the same height as the navigation */
-.header h3 {
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 40px; }
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600; }
+
+p {
+  font-weight: 400; }

@@ -103,8 +103,20 @@ class Committee(models.Model):
     #Position of the resolution in the resolution booklet
     position = models.PositiveSmallIntegerField()
 
+    def short_name(self):
+        if self.number is None:
+            return unicode(self.name)
+        else:
+            return unicode(self.name) + ' ' + unicode(self.number)
+
+    def full_name(self):
+        if self.number is None:
+            return unicode(self.get_name_display())
+        else:
+            return unicode(self.get_name_display()) + ' ' + unicode(self.get_number_display())
+
     def __unicode__(self):
-        return self.name
+        return self.short_name()
 
 
 class Clause(models.Model):

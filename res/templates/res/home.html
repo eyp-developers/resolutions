@@ -2,8 +2,18 @@
 {% load staticfiles %}
 
 {% block content %}
-<h1>Home!</h1>
 
-<a class="btn btn-primary" href="#" role="button">Download Tex</a>
+{% if latest_sessions_list %}
+<div class="list-group">
+    {% for session in latest_sessions_list %}
+    <a href="{% url 'res:session' session.pk %}" class="list-group-item">
+        <h4 class="list-group-item-heading">{{ session.name }}</h4>
+        <p class="list-group-item-text">{{ session.full_name }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p>No sessions available..</p>
+{% endif %}
 
 {% endblock %}

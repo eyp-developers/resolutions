@@ -1,1 +1,17 @@
-<h1>Session!</h1>
+{% extends 'res/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+{% if committees %}
+<div class="list-group">
+    {% for committee in committees %}
+    <a href="{% url 'res:committee' committee.pk %}" class="list-group-item">
+        <h4 class="list-group-item-heading">{{ committee.short_name }}</h4>
+        <p class="list-group-item-text">{{ committee.topic }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p>No sessions available..</p>
+{% endif %}
+{% endblock %}

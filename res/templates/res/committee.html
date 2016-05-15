@@ -1,1 +1,17 @@
-<h1>Committee!</h1>
+{% extends 'res/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="text-center">
+    <h2>A Motion for a Resolution by The Committee on {{ full_name }}</h2>
+    <p style="font-size: 20px">{{ committee.topic }}</p>
+</div>
+<div class="row">
+    <div class="col-xs-3">
+        <p><b>Submitted By:</b></p>
+    </div>
+    <div class="col-xs-9">
+        <p>{{ committee.submitted_by }}</p>
+    </div>
+</div>
+{% endblock %}

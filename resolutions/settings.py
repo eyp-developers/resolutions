@@ -56,7 +56,7 @@ ROOT_URLCONF = 'resolutions.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['resolutions/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

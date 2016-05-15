@@ -6,7 +6,7 @@ from .models import Session, Committee, Subtopic, Clause, ClauseContent, SubClau
 #Setting up the inline for the resolutions for the session admin
 class CommitteeInline(admin.StackedInline):
     model = Committee
-    extra = 2
+    extra = 0
 
 
 #Setting up the session admin

@@ -13,7 +13,9 @@ from .models import Session, Committee, Clause, ClauseContent, SubClause, SubCla
 
 
 def home(request):
-    return render(request, 'res/home.html')
+    latest_sessions_list = Session.objects.order_by('-ga_start_date')
+    context = {'latest_sessions_list': latest_sessions_list}
+    return render(request, 'res/home.html', context)
 
 def download(request):
 
@@ -54,9 +56,21 @@ def download(request):
     return r
 
 
-def session(request):
-    return render(request, 'res/session.html')
+def session(request, session_id):
+    session = Session.objects.get(pk=session_id)
+    committees = Committee.objects.filter(session=session)
+
+    context = {'committees': committees}
+    return render(request, 'res/session.html', context)
 
 
-def committee(request):
-    return render(request, 'res/committee.html')
+def committee(request, committee_id):
+    com = Committee.objects.get(pk=committee_id)
+
+    context = {
+        'full_name': com.full_name(),
+        'short_name': com.short_name(),
+        'committee': com
+    }
+
+    return render(request, 'res/committee.html', context)
