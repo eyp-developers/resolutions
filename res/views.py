@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
@@ -12,13 +13,74 @@ import pdb
 from django.conf import settings
 
 from .models import Session, Committee, Clause, ClauseContent, SubClause, SubClauseContent, Subtopic
-from .forms import SubtopicPositionForm, ClausePositionForm
+from .forms import SubtopicPositionForm, ClausePositionForm, ClauseCreateForm, SubtopicCreateForm, ClauseEditForm
 
 
 def home(request):
     latest_sessions_list = Session.objects.order_by('-ga_start_date')
     context = {'latest_sessions_list': latest_sessions_list}
     return render(request, 'res/home.html', context)
+
+
+def resolution(request, committee_id):
+    committee = Committee.objects.get(pk=committee_id)
+
+    introductory = Clause.objects.filter(committee=committee).filter(clause_type='IC').order_by('position')
+
+    intro = []
+
+    for i in introductory:
+        subtopics = SubClause.objects.filter(clause=i.pk)
+        subs = []
+        if subtopics is not None:
+            for s in subtopics:
+                subs.append(s.latest_content)
+
+        thisintro = {
+            'content': i.resolution_content,
+            'subs': subs
+        }
+        intro.append(thisintro)
+
+    context = Context({
+            'full_name': committee.full_name(),
+            'topic': committee.topic,
+            'submitted_by': committee.submitted_by,
+            'ics': intro
+        })
+    template = get_template('res/single_resolution.tex')
+    rendered_tpl = template.render(context).encode('utf-8')
+
+    try:
+        tempdir = tempfile.mkdtemp()
+
+        #Copy the resolution class file to the temp folder.
+        resclsdir = os.path.join(settings.STATIC_ROOT, 'resolution.cls')
+        toresclsdir = os.path.join(tempdir, 'resolution.cls')
+        shutil.copy(resclsdir, toresclsdir)
+        # Create subprocess, supress output with PIPE and
+        # run latex twice to generate the TOC properly.
+        # Finally read the generated pdf.
+        for i in range(2):
+            process = Popen(
+                ['xelatex', '-output-directory', tempdir],
+                stdin=PIPE,
+                stdout=PIPE,
+            )
+            process.communicate(rendered_tpl)
+        with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
+            pdf = f.read()
+    finally:
+        try:
+            shutil.rmtree(tempdir)  # delete directory
+        except OSError as exc:
+            print exc
+
+    r = HttpResponse(content_type='application/pdf')
+    # r['Content-Disposition'] = 'attachment; filename=texput.pdf'
+    r.write(pdf)
+    return r
+
 
 def download(request):
 
@@ -69,8 +131,44 @@ def session(request, session_id):
 
 def committee(request, committee_id):
     if request.method == 'POST':
+        com = Committee.objects.get(pk=committee_id)
+        if request.POST.get('content') is not None:
+            sub_names = [(0, 'No Subtopic')]
+            for subtopic in Subtopic.objects.filter(committee=com).order_by('position'):
+                sub_names.append((subtopic.pk, subtopic.name),)
+            form = ClauseCreateForm(sub_names, request.POST)
 
-        if request.POST.get('subtopic') is not None:
+            if form.is_valid():
+                if int(form.cleaned_data['subtopic']) > 0:
+                    sub = Subtopic.objects.get(pk=form.cleaned_data['subtopic'])
+                else:
+                    sub = None
+                c = Clause(
+                    committee=com,
+                    clause_type=form.cleaned_data['type'],
+                    position=form.cleaned_data['position'],
+                    subtopic=sub
+                )
+                c.save()
+                content = ClauseContent(clause=c, content=form.cleaned_data['content'])
+                content.save()
+                messages.add_message(request, messages.SUCCESS, 'Clause created!')
+                return HttpResponseRedirect(reverse('res:committee', args=[committee_id]))
+
+        elif request.POST.get('subtopic_name') is not None:
+            form = SubtopicCreateForm(request.POST)
+
+            if form.is_valid():
+                s = Subtopic(
+                    committee=com,
+                    name=form.cleaned_data['subtopic_name'],
+                    position=form.cleaned_data['position']
+                )
+                s.save()
+                messages.add_message(request, messages.SUCCESS, 'Subtopic created!')
+                return HttpResponseRedirect(reverse('res:committee', args=[committee_id]))
+
+        elif request.POST.get('subtopic') is not None:
             form = SubtopicPositionForm(request.POST)
 
             if form.is_valid():
@@ -112,7 +210,9 @@ def committee(request, committee_id):
             }
             subs.append(no_subs)
 
+        sub_names = [(0, 'No Subtopic')]
         for subtopic in subtopics:
+            sub_names.append((subtopic.pk, subtopic.name),)
             theseclauses = operatives.filter(subtopic=subtopic).order_by('position')
             sub = {
                 'name': subtopic.name,
@@ -123,8 +223,8 @@ def committee(request, committee_id):
             subs.append(sub)
 
         introductory = Clause.objects.filter(committee=com).filter(clause_type='IC').order_by('position')
-        form = ClausePositionForm()
-        subtopicform = SubtopicPositionForm()
+        clauseform = ClauseCreateForm(sub_names)
+        subtopicform = SubtopicCreateForm()
 
         context = {
             'full_name': com.full_name(),
@@ -132,7 +232,7 @@ def committee(request, committee_id):
             'committee': com,
             'subtopics': subs,
             'ics': introductory,
-            'form': form,
+            'clauseform': clauseform,
             'subtopicform': subtopicform
         }
 
@@ -140,9 +240,55 @@ def committee(request, committee_id):
 
 
 def clause(request, clause_id):
-    
+    thisclause = Clause.objects.get(pk=clause_id)
+    com = thisclause.committee
+    contents = ClauseContent.objects.filter(clause=thisclause).order_by('-timestamp')
+    subtopics = Subtopic.objects.filter(committee=com)
+    subs = [(0, 'No Subtopic')]
+    for subtopic in subtopics:
+        subs.append((subtopic.pk, subtopic.name),)
+    if request.method == 'POST':
+        form = ClauseEditForm(subs, request.POST)
 
-    return render(request, 'res/clause.html')
+        if form.is_valid():
+            if int(form.cleaned_data['subtopic']) > 0:
+                    sub = Subtopic.objects.get(pk=form.cleaned_data['subtopic'])
+            else:
+                sub = None
+
+            c = Clause.objects.get(pk=clause_id)
+            c.position = form.cleaned_data['position']
+            c.subtopic = sub
+            c.save()
+            content = ClauseContent(clause=c, content=form.cleaned_data['content'])
+            content.save()
+            messages.add_message(request, messages.SUCCESS, 'Edit Successful')
+            return HttpResponseRedirect(reverse('res:clause', args=[clause_id]))
+    else:
+        subpk = 0
+        if thisclause.subtopic is not None:
+            subpk = thisclause.subtopic.pk
+
+        clauseform = ClauseEditForm(subs, {'position': thisclause.position,
+                                     'content': contents[0].content,
+                                     'subtopic': subpk})
+        diffs = []
+
+        for i in range(len(contents)-1):
+            change = difflib.SequenceMatcher(None, contents[i+1].content, contents[i].content)
+            diffs.append(show_diff(change))
+
+
+
+        context = {
+            'contents': contents,
+            'clauseform': clauseform,
+            'clause': thisclause,
+            'diffs': zip(diffs, contents),
+            'last': contents[len(contents) - 1]
+        }
+
+        return render(request, 'res/clause.html', context)
 
 def show_diff(seqm):
     """Unify operations between two compared strings

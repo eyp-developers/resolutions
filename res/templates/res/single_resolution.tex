@@ -1,0 +1,43 @@
+\documentclass{resolution}
+
+\begin{document}
+
+\section{Motion for a Resolution by the {{ full_name }} }
+
+\motion{ {{ topic }} }\\~\\
+
+\submittedby{ {{ submitted_by }} }\\~\\
+
+\textbf{The European Youth Parliament,}
+
+\begin{enumerate}[A.]
+{% for ic in ics%}
+\item {{ ic.content }}
+{% if ic.subs %}
+    \begin{enumerate}[i.]
+    {% for s in ic.subs %}
+        \item {{ s }}
+    {% endfor %}
+    \end{enumerate}
+{% endif %}
+{% endfor %}
+\end{enumerate}
+
+
+~\\
+
+\begin{enumerate}[1.]
+	\item Calls upon the European Commission to implement the minimum food quality standards set by the European Food Safety Authority (EFSA) in the TTIP;
+	\item Asks the Member States to check if the minimum food quality standards of the EU are met before selling animal products from the US within the EU;
+	\item Invites the Member States to take actions in order to raise awareness, interest and knowledge of the general public regarding the TTIP by more effective distribution of information;
+	\item Urges the European Commission to convene with non-governmental organisations that are members of European Public Health Alliance (EPHA)6 regarding the TTIP on a regular basis;
+	\item Requests the European Commission to initiate legislation to further harmonise copyright regulations, especially on areas such as:
+	\begin{enumerate}[a.]
+		\item reproductions made for private and non-commercial use,
+		\item incidental inclusion of another work,
+		\item press reviews and news reporting.
+	\end{enumerate}
+\end{enumerate}
+
+
+\end{document}
