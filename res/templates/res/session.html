@@ -1,7 +1,15 @@
 {% extends 'res/base.html' %}
 {% load staticfiles %}
 
+{% block page_title %}{{ session.name }}{% endblock %}
+
 {% block content %}
+
+<a href="{% url 'res:resolution_booklet' session.pk %}" class="btn btn-primary">Download Resolution Booklet</a>
+
+<br>
+<br>
+
 {% if committees %}
 <div class="list-group">
     {% for committee in committees %}

@@ -1,6 +1,168 @@
 {% extends 'res/base.html' %}
 {% load staticfiles %}
 
+{% block page_title %}Clause{% endblock %}
+
 {% block content %}
-<h4>This is a clause page.</h4>
+{% if clauseform %}
+<h3>Edit Clause:</h3>
+<form class="form-horizontal" role="form" method="post" action="{% url 'res:clause' clause.id %}">
+    {% csrf_token %}
+    {% for field in clauseform %}
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="{{ field.id_for_label }}">{{ field.label }} {{ field.errors }}</label>
+
+        <div class="col-sm-10">
+            {{ field }}
+        </div>
+    </div>
+    {% endfor %}
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-primary">Save Clause</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Time</th>
+        <th>Content</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for diff, content in diffs %}
+    <tr>
+        <td>
+            {{ content.timestamp }}
+        </td>
+        <td>{{ diff|safe }}</td>
+    </tr>
+    {% endfor%}
+    <tr>
+        <td>
+            {{ last.timestamp }}
+        </td>
+        <td>{{ last.content }}</td>
+    </tr>
+    </tbody>
+</table>
+
+<br>
+
+<h2>Subclauses:</h2>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Position</th>
+        <th>Content</th>
+        <th>Edit</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for sub in subclauses %}
+    <tr>
+        <td>
+            {{ sub.clause.position }}
+        </td>
+        <td>{{ sub.clause.latest_content }}</td>
+        <td>
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-{{ sub.clause.pk }}">
+                <span class="glyphicon glyphicon-pencil"></span>
+            </button>
+            <form class="form-inline" role="form" method="post" action="{% url 'res:clause' clause.id %}" style="margin-top: 5px">
+                {% csrf_token %}
+                <input type="hidden" name="delete_type" value="subclause">
+                <input type="hidden" name="pk" value="{{ sub.clause.pk }}">
+                <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+        </td>
+    </tr>
+    {% endfor%}
+    </tbody>
+</table>
+
+{% for sub in subclauses %}
+<!-- Modal -->
+<div class="modal fade" id="modal-{{ sub.clause.pk }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" >Edit Subclause</h4>
+            </div>
+            <div class="modal-body">
+                <form id="sub-{{ sub.clause.id }}" role="form" method="post" action="{% url 'res:clause' clause.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="subclause" value="{{ sub.clause.id }}">
+                    <br>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="position">Position</label>
+
+                        <div class="col-sm-10">
+                            <input type="number" id="position" class="form-control" name="position" value="{{ sub.clause.position }}">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="content">Content</label>
+
+                        <div class="col-sm-10">
+                            <textarea type="text" id="content" class="form-control" name="content">{{ sub.clause.latest_content }}</textarea>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+                <br>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Content</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for diff, content in sub.diffs %}
+                    <tr>
+                        <td>
+                            {{ content.timestamp }}
+                        </td>
+                        <td>{{ diff|safe }}</td>
+                    </tr>
+                    {% endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if addsubform %}
+<h3>Add New Subclause:</h3>
+<form class="form-horizontal" role="form" method="post" action="{% url 'res:clause' clause.id %}">
+    {% csrf_token %}
+    {% for field in addsubform %}
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="{{ field.id_for_label }}">{{ field.label }} {{ field.errors }}</label>
+
+        <div class="col-sm-10">
+            {{ field }}
+        </div>
+    </div>
+    {% endfor %}
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-primary">Save Subclause</button>
+        </div>
+    </div>
+</form>
+{% endif %}
 {% endblock %}

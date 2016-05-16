@@ -38,11 +38,11 @@ class CommitteeAdmin(admin.ModelAdmin):
 
 
 class SubtopicAdmin(admin.ModelAdmin):
-    list_display = ('committee', 'name', 'position')
+    list_display = ('committee', 'name', 'position', 'visible')
 
 
 class ClauseAdmin(admin.ModelAdmin):
-    list_display = ('committee', 'subtopic', 'clause_type', 'last_edited', 'position')
+    list_display = ('committee', 'subtopic', 'clause_type', 'last_edited', 'position', 'visible')
 
     inlines = [ClauseInline]
 
@@ -52,7 +52,7 @@ class ClauseContentAdmin(admin.ModelAdmin):
 
 
 class SubClauseAdmin(admin.ModelAdmin):
-    list_display = ('clause', 'last_edited', 'position')
+    list_display = ('clause', 'last_edited', 'position', 'visible')
 
     inlines = [SubClauseInline]
 

@@ -1,0 +1,59 @@
+\documentclass{resolution}
+
+\begin{document}
+
+\section{Motion for a Resolution by the Committee on {{ full_name }} }
+
+\motion{ {{ topic }} }\\~\\
+
+\submittedby{ {{ submitted_by }} }\\~\\
+
+\textbf{The European Youth Parliament,}
+
+\begin{IC}
+{% for ic in ics%}
+\item {{ ic.content }}
+{% if ic.subs %}
+    \begin{ICS}
+    {% for s in ic.subs %}
+        \item {{ s }}
+    {% endfor %}
+    \end{ICS}
+{% endif %}
+{% endfor %}
+\end{IC}
+
+
+~\\
+
+\begin{enumerate}
+    {% for clause in no_subtopic %}
+        \item {{ clause.content }}
+        {% if clause.subs %}
+            \begin{OCS}
+                {% for s in clause.subs %}
+                    \item {{ s }}
+                {% endfor %}
+            \end{OCS}
+        {% endif %}
+    {% endfor %}
+\end{enumerate}
+
+{% for subtopic in subtopics %}
+\subtopic{ {{ subtopic.name }} }
+\begin{enumerate}[resume]
+    {% for clause in subtopic.clauses %}
+        \item {{ clause.content }}
+        {% if clause.subs %}
+            \begin{OCS}
+                {% for s in clause.subs %}
+                    \item {{ s }}
+                {% endfor %}
+            \end{OCS}
+        {% endif %}
+    {% endfor %}
+\end{enumerate}
+{% endfor %}
+
+
+\end{document}

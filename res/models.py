@@ -65,7 +65,7 @@ class Committee(models.Model):
         (ECON, 'Economic and Monetary Affairs'),
         (EMPL, 'Employment and Social Affairs'),
         (ENVI, 'Environment, Public Health and Food Safety'),
-        (FEMM, "Women's Rights and Gender Equality"),
+        (FEMM, "Womens Rights and Gender Equality"),
         (IMCO, 'Internal Market and Consumer Protection'),
         (INTA, 'International Trade'),
         (ITRE, 'Industry, Research and Energy'),
@@ -113,7 +113,7 @@ class Committee(models.Model):
         if self.number is None:
             return unicode(self.get_name_display())
         else:
-            return unicode(self.get_name_display()) + ' ' + unicode(self.get_number_display())
+            return str(self.get_name_display()) + ' ' + unicode(self.get_number_display())
 
     def __unicode__(self):
         return self.short_name()
@@ -125,6 +125,8 @@ class Subtopic(models.Model):
     name = models.CharField(max_length=200)
 
     position = models.PositiveSmallIntegerField()
+
+    visible = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name + ', ' + self.committee.short_name()
@@ -152,16 +154,26 @@ class Clause(models.Model):
     #Clauses can also be connected with a subtopic
     subtopic = models.ForeignKey(Subtopic, blank=True, null=True)
 
+    #So that we don't have people accedenatlly deleting things, we'll use a visible field instead.
+    visible = models.BooleanField(default=True)
+
     def last_edited(self):
-        content = ClauseContent.objects.filter(clause=self).order_by('timestamp')
+        content = ClauseContent.objects.filter(clause=self).order_by('-timestamp')
 
         if content.count() == 0:
             return self.creation_time
         else:
             return content[0].timestamp
 
+    def resolution_content(self):
+        content = ClauseContent.objects.filter(clause=self).order_by('-timestamp')
+        if content.count() == 0:
+            return "No Content Yet!"
+        else:
+            return content[0].content
+
     def latest_content(self):
-        content = ClauseContent.objects.filter(clause=self).order_by('timestamp')
+        content = ClauseContent.objects.filter(clause=self).order_by('-timestamp')
         subclauses = SubClause.objects.filter(clause=self).order_by('position')
 
         if content.count() == 0:
@@ -170,7 +182,7 @@ class Clause(models.Model):
             subs = []
             if len(subclauses) > 0:
                 for sub in subclauses:
-                    subcontent = SubClauseContent.objects.filter(subclause=sub).order_by('timestamp')
+                    subcontent = SubClauseContent.objects.filter(subclause=sub).order_by('-timestamp')
                     if subcontent.count() > 0:
                         subs.append(subcontent[0].content)
                 if len(subs) > 0:
@@ -210,8 +222,10 @@ class SubClause(models.Model):
 
     creation_time = models.DateTimeField(auto_now_add=True)
 
+    visible = models.BooleanField(default=True)
+
     def last_edited(self):
-        content = SubClauseContent.objects.filter(subclause=self).order_by('timestamp')
+        content = SubClauseContent.objects.filter(subclause=self).order_by('-timestamp')
 
         if content.count() == 0:
             return self.creation_time
@@ -219,7 +233,7 @@ class SubClause(models.Model):
             return content[0].timestamp
 
     def latest_content(self):
-        content = SubClauseContent.objects.filter(subclause=self).order_by('timestamp')
+        content = SubClauseContent.objects.filter(subclause=self).order_by('-timestamp')
 
         if content.count() == 0:
             return "No Content Yet!"
