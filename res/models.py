@@ -103,6 +103,22 @@ class Committee(models.Model):
     #Position of the resolution in the resolution booklet
     position = models.PositiveSmallIntegerField()
 
+    #All options for possible statuses in which the committee currently is
+    NO_CHECK = 'NO_CHECK'
+    SELF_CHECK = 'SELF_CHECK'
+    BUDDY_CHECK = 'BUDDY_CHECK'
+    VP_CHECK = 'VP_CHECK'
+    PRES_CHECK = 'PRES_CHECK'
+    CHECK_STATUSES = (
+        (NO_CHECK, 'Not checked'),
+        (SELF_CHECK, 'Self checked'),
+        (BUDDY_CHECK, 'Buddy checked'),
+        (VP_CHECK, 'VP checked'),
+        (PRES_CHECK, 'Presidential checked'),
+    )
+
+    check_status = models.CharField(max_length = 20, choices= CHECK_STATUSES, default = NO_CHECK)
+
     def short_name(self):
         if self.number is None:
             return unicode(self.name)
