@@ -56,3 +56,8 @@ class EditSubClause(forms.Form):
     subclause = forms.IntegerField(required=True)
     position = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class': 'form-control'}))
     content = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+
+class DeleteForm(forms.Form):
+    delete_type = forms.CharField(required=True)
+    pk = forms.IntegerField(required=True)

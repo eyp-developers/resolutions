@@ -13,7 +13,7 @@ import pdb
 from django.conf import settings
 
 from .models import Session, Committee, Clause, ClauseContent, SubClause, SubClauseContent, Subtopic
-from .forms import SubtopicPositionForm, ClausePositionForm, ClauseCreateForm, SubtopicCreateForm, ClauseEditForm, AddSubClause, EditSubClause
+from .forms import SubtopicPositionForm, ClausePositionForm, ClauseCreateForm, SubtopicCreateForm, ClauseEditForm, AddSubClause, EditSubClause, DeleteForm
 
 
 def breadcrumbs(session_id=0, committee_id=0, clause_id=0):
@@ -41,6 +41,7 @@ def home(request):
 def resolution(request, committee_id):
     context = Context(singleresolutioncontext(committee_id))
     return render_template('res/single_resolution.tex', context)
+
 
 def resolution_booklet(request, session_id):
     session = Session.objects.get(pk=session_id)
@@ -80,12 +81,12 @@ def booklet_tex(request, session_id):
 def singleresolutioncontext(committee_id):
     com = Committee.objects.get(pk=committee_id)
 
-    introductory = Clause.objects.filter(committee=com).filter(clause_type='IC').order_by('position')
+    introductory = Clause.objects.filter(visible=True).filter(committee=com).filter(visible=True).filter(clause_type='IC').order_by('position')
 
     intro = []
 
     for i in introductory:
-        subclauses = SubClause.objects.filter(clause=i.pk)
+        subclauses = SubClause.objects.filter(visible=True).filter(clause=i.pk)
         subs = []
         if subclauses is not None:
             for s in subclauses:
@@ -97,14 +98,14 @@ def singleresolutioncontext(committee_id):
         }
         intro.append(thisintro)
 
-    operatives = Clause.objects.filter(committee=com).filter(clause_type='OC').order_by('position')
-    subtopics = Subtopic.objects.filter(committee=com).order_by('position')
+    operatives = Clause.objects.filter(visible=True).filter(committee=com).filter(clause_type='OC').order_by('position')
+    subtopics = Subtopic.objects.filter(visible=True).filter(committee=com).order_by('position')
     subs = []
 
     no_subtopic = []
     for c in operatives:
         if c.subtopic is None:
-            subclauses = SubClause.objects.filter(clause=c.pk).order_by('position')
+            subclauses = SubClause.objects.filter(visible=True).filter(clause=c.pk).order_by('position')
             scls = []
             if subclauses is not None:
                 for s in subclauses:
@@ -118,7 +119,7 @@ def singleresolutioncontext(committee_id):
         theseclauses = operatives.filter(subtopic=subtopic).order_by('position')
         subtopicclauses = []
         for c in theseclauses:
-            subclauses = SubClause.objects.filter(clause=c.pk).order_by('position')
+            subclauses = SubClause.objects.filter(visible=True).filter(clause=c.pk).order_by('position')
             scls = []
             if subclauses is not None:
                 for s in subclauses:
@@ -195,7 +196,7 @@ def committee(request, committee_id):
         com = Committee.objects.get(pk=committee_id)
         if request.POST.get('content') is not None:
             sub_names = [(0, 'No Subtopic')]
-            for subtopic in Subtopic.objects.filter(committee=com).order_by('position'):
+            for subtopic in Subtopic.objects.filter(visible=True).filter(committee=com).order_by('position'):
                 sub_names.append((subtopic.pk, subtopic.name),)
             form = ClauseCreateForm(sub_names, request.POST)
 
@@ -239,6 +240,23 @@ def committee(request, committee_id):
                 return HttpResponseRedirect(reverse('res:committee', args=[committee_id]) + '#sub-' + str(s.id))
             else:
                 return HttpResponseRedirect(reverse('res:committee', args=[committee_id]))
+        elif request.POST.get('delete_type') is not None:
+            form = DeleteForm(request.POST)
+
+            if form.is_valid():
+                type = form.cleaned_data['delete_type']
+                pk = form.cleaned_data['pk']
+
+                if type == 'clause':
+                    c = Clause.objects.get(pk=pk)
+                    c.visible = False
+                    c.save()
+                elif type == 'subtopic':
+                    s = Subtopic.objects.get(pk=pk)
+                    s.visible = False
+                    s.save()
+
+                return HttpResponseRedirect(reverse('res:committee', args=[committee_id]))
         else:
             form = ClausePositionForm(request.POST)
 
@@ -253,8 +271,8 @@ def committee(request, committee_id):
     else:
         com = Committee.objects.get(pk=committee_id)
 
-        operatives = Clause.objects.filter(committee=com).filter(clause_type='OC').order_by('position')
-        subtopics = Subtopic.objects.filter(committee=com).order_by('position')
+        operatives = Clause.objects.filter(visible=True).filter(committee=com).filter(clause_type='OC').order_by('position')
+        subtopics = Subtopic.objects.filter(visible=True).filter(committee=com).order_by('position')
         subs = []
 
         no_subtopic = []
@@ -283,7 +301,7 @@ def committee(request, committee_id):
             }
             subs.append(sub)
 
-        introductory = Clause.objects.filter(committee=com).filter(clause_type='IC').order_by('position')
+        introductory = Clause.objects.filter(visible=True).filter(committee=com).filter(clause_type='IC').order_by('position')
         clauseform = ClauseCreateForm(sub_names)
         subtopicform = SubtopicCreateForm()
 
@@ -305,7 +323,7 @@ def clause(request, clause_id):
     thisclause = Clause.objects.get(pk=clause_id)
     com = thisclause.committee
     contents = ClauseContent.objects.filter(clause=thisclause).order_by('-timestamp')
-    subtopics = Subtopic.objects.filter(committee=com)
+    subtopics = Subtopic.objects.filter(visible=True).filter(committee=com)
     subs = [(0, 'No Subtopic')]
     for subtopic in subtopics:
         subs.append((subtopic.pk, subtopic.name),)
@@ -341,6 +359,20 @@ def clause(request, clause_id):
                 scc.save()
                 messages.add_message(request, messages.SUCCESS, 'Subclause Successfully Edited')
                 return HttpResponseRedirect(reverse('res:clause', args=[clause_id]))
+        elif request.POST.get('delete_type') is not None:
+            form = DeleteForm(request.POST)
+
+            if form.is_valid():
+                type = form.cleaned_data['delete_type']
+                pk = form.cleaned_data['pk']
+
+                if type == 'subclause':
+                    s = SubClause.objects.get(pk=pk)
+                    s.visible = False
+                    s.save()
+
+                return HttpResponseRedirect(reverse('res:clause', args=[clause_id]))
+
         else:
             form = AddSubClause(request.POST)
 
@@ -371,7 +403,7 @@ def clause(request, clause_id):
             change = difflib.SequenceMatcher(None, contents[i + 1].content, contents[i].content)
             diffs.append(show_diff(change))
 
-        subclauses = SubClause.objects.filter(clause=clause_id).order_by('position')
+        subclauses = SubClause.objects.filter(visible=True).filter(clause=clause_id).order_by('position')
 
         subsdiffs = []
         for sub in subclauses:

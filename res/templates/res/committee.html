@@ -47,7 +47,16 @@
             </form>
         </td>
         <td>{{ ic.latest_content|safe }}</td>
-        <td><a class="btn btn-primary btn-sm" href="{% url 'res:clause' ic.id %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+        <td>
+            <a class="btn btn-primary btn-sm" href="{% url 'res:clause' ic.id %}"><span class="glyphicon glyphicon-pencil"></span></a>
+            <br>
+            <form class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}" style="margin-top: 5px">
+                {% csrf_token %}
+                <input type="hidden" name="delete_type" value="clause">
+                <input type="hidden" name="pk" value="{{ ic.pk }}">
+                <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+        </td>
     </tr>
     {% endfor%}
     </tbody>
@@ -58,19 +67,32 @@
 {% if subtopics %}
 {% for sub in subtopics %}
 {% if sub.position != 0 %}
-<form id="sub-{{ sub.id }}" class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}">
-    {% csrf_token %}
-    <input type="hidden" name="subtopic" value="{{ sub.id }}">
-    <div class="form-group">
-        <label for="pos" ><h4>{{ sub.name }}</h4></label>
-        <div class="input-group">
-            <input id="pos" type="number" class="form-control" name="position" value="{{ sub.position }}">
+<div class="row">
+    <div class="col-xs-10">
+        <form id="sub-{{ sub.id }}" class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="subtopic" value="{{ sub.id }}">
+            <div class="form-group">
+                <label for="pos" ><h4>{{ sub.name }}</h4></label>
+                <div class="input-group">
+                    <input id="pos" type="number" class="form-control" name="position" value="{{ sub.position }}">
                         <span class="input-group-btn">
                             <button type="submit" class="btn btn-search"><span class="glyphicon glyphicon-ok"></span></button>
                         </span>
-        </div>
+                </div>
+            </div>
+        </form>
     </div>
-</form>
+    <div class="col-xs-2 text-right">
+        <form class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}" style="margin-top: 5px">
+            {% csrf_token %}
+            <input type="hidden" name="delete_type" value="subtopic">
+            <input type="hidden" name="pk" value="{{ sub.id }}">
+            <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+        </form>
+    </div>
+</div>
+
 {% else %}
 <h4>{{ sub.name }}  <small>Position: {{ sub.position }}</small></h4>
 {% endif %}
@@ -100,7 +122,15 @@
             </form>
         </td>
         <td>{{ clause.latest_content|safe }}</td>
-        <td><a class="btn btn-primary btn-sm" href="{% url 'res:clause' clause.id %}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+        <td>
+            <a class="btn btn-primary btn-sm" href="{% url 'res:clause' clause.id %}"><span class="glyphicon glyphicon-pencil"></span></a>
+            <form class="form-inline" role="form" method="post" action="{% url 'res:committee' committee.id %}" style="margin-top: 5px">
+                {% csrf_token %}
+                <input type="hidden" name="delete_type" value="clause">
+                <input type="hidden" name="pk" value="{{ clause.pk }}">
+                <button type="submit" class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+            </form>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
@@ -119,19 +149,19 @@
 <form class="form-horizontal" role="form" method="post" action="{% url 'res:committee' committee.id %}">
     {% csrf_token %}
     {% for field in clauseform %}
-  <div class="form-group">
-      <label class="control-label col-sm-2" for="{{ field.id_for_label }}">{{ field.label }} {{ field.errors }}</label>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="{{ field.id_for_label }}">{{ field.label }} {{ field.errors }}</label>
 
-    <div class="col-sm-10">
-      {{ field }}
+        <div class="col-sm-10">
+            {{ field }}
+        </div>
     </div>
-  </div>
     {% endfor %}
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit" class="btn btn-primary">Add Clause</button>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-primary">Add Clause</button>
+        </div>
     </div>
-  </div>
 </form>
 {% endif %}
 
@@ -140,19 +170,19 @@
 <form class="form-horizontal" role="form" method="post" action="{% url 'res:committee' committee.id %}">
     {% csrf_token %}
     {% for field in subtopicform %}
-  <div class="form-group">
-      <label class="control-label col-sm-2" for="{{ field.id_for_label }}">{{ field.label }} {{ field.errors }}</label>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="{{ field.id_for_label }}">{{ field.label }} {{ field.errors }}</label>
 
-    <div class="col-sm-10">
-      {{ field }}
+        <div class="col-sm-10">
+            {{ field }}
+        </div>
     </div>
-  </div>
     {% endfor %}
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit" class="btn btn-primary">Add Subtopic</button>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-primary">Add Subtopic</button>
+        </div>
     </div>
-  </div>
 </form>
 {% endif %}
 {% endblock %}

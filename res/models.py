@@ -126,6 +126,8 @@ class Subtopic(models.Model):
 
     position = models.PositiveSmallIntegerField()
 
+    visible = models.BooleanField(default=True)
+
     def __unicode__(self):
         return self.name + ', ' + self.committee.short_name()
 
@@ -151,6 +153,9 @@ class Clause(models.Model):
 
     #Clauses can also be connected with a subtopic
     subtopic = models.ForeignKey(Subtopic, blank=True, null=True)
+
+    #So that we don't have people accedenatlly deleting things, we'll use a visible field instead.
+    visible = models.BooleanField(default=True)
 
     def last_edited(self):
         content = ClauseContent.objects.filter(clause=self).order_by('-timestamp')
@@ -216,6 +221,8 @@ class SubClause(models.Model):
     position = models.PositiveSmallIntegerField()
 
     creation_time = models.DateTimeField(auto_now_add=True)
+
+    visible = models.BooleanField(default=True)
 
     def last_edited(self):
         content = SubClauseContent.objects.filter(subclause=self).order_by('-timestamp')
