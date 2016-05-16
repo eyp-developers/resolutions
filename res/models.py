@@ -65,7 +65,7 @@ class Committee(models.Model):
         (ECON, 'Economic and Monetary Affairs'),
         (EMPL, 'Employment and Social Affairs'),
         (ENVI, 'Environment, Public Health and Food Safety'),
-        (FEMM, "Women's Rights and Gender Equality"),
+        (FEMM, "Womens Rights and Gender Equality"),
         (IMCO, 'Internal Market and Consumer Protection'),
         (INTA, 'International Trade'),
         (ITRE, 'Industry, Research and Energy'),
@@ -113,7 +113,7 @@ class Committee(models.Model):
         if self.number is None:
             return unicode(self.get_name_display())
         else:
-            return unicode(self.get_name_display()) + ' ' + unicode(self.get_number_display())
+            return str(self.get_name_display()) + ' ' + unicode(self.get_number_display())
 
     def __unicode__(self):
         return self.short_name()
@@ -166,7 +166,6 @@ class Clause(models.Model):
             return "No Content Yet!"
         else:
             return content[0].content
-
 
     def latest_content(self):
         content = ClauseContent.objects.filter(clause=self).order_by('-timestamp')

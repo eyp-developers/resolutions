@@ -12,11 +12,17 @@
       <a class="navbar-brand" href="{% url 'res:home' %}">Resolutions</a>
     </div>
 
-    <!-- Collect the nav links, forms, and other content for toggling
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    {% if bread %}
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li><a href="#">Home</a></li>
+        <ol class="breadcrumb">
+          {% for b in bread %}
+          <li><a href="{{ b.url }}">{{ b.name }}</a></li>
+          {% endfor %}
+        </ol>
       </ul>
     </div><!-- /.navbar-collapse -->
+    {% endif %}
   </div><!-- /.container-fluid -->
 </nav>

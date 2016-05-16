@@ -12,3 +12,10 @@ del {
 
 ins {
   background-color: rgba(22, 197, 3, 0.31); }
+
+.replace {
+  background-color: rgba(249, 255, 0, 0.71); }
+
+.breadcrumb {
+  padding: 15px 15px;
+  margin-bottom: 0; }

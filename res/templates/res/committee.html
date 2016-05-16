@@ -1,6 +1,8 @@
 {% extends 'res/base.html' %}
 {% load staticfiles %}
 
+{% block page_title %}{{ committee.short_name }}{% endblock %}
+
 {% block content %}
 <div class="text-center">
     <h2>A Motion for a Resolution by The Committee on {{ full_name }}</h2>

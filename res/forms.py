@@ -45,3 +45,14 @@ class ClauseEditForm(forms.Form):
         self.fields['subtopic'].choices = subtopic_choices
 
     subtopic = forms.ChoiceField(choices=(), required=True, widget=forms.Select(attrs={'class': 'form-control'}))
+
+
+class AddSubClause(forms.Form):
+    position = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    content = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+
+class EditSubClause(forms.Form):
+    subclause = forms.IntegerField(required=True)
+    position = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class': 'form-control'}))
+    content = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
