@@ -9,11 +9,70 @@ import tempfile
 import os
 import shutil
 import difflib
+import re
 import pdb
 from django.conf import settings
 
 from .models import Session, Committee, Clause, ClauseContent, SubClause, SubClauseContent, Subtopic
 from .forms import SubtopicPositionForm, ClausePositionForm, ClauseCreateForm, SubtopicCreateForm, ClauseEditForm, AddSubClause, EditSubClause, DeleteForm
+
+
+clause_checks = [
+    {
+        'type': 'all',
+        'regex': 'but',
+        'response': False,
+        'error': 'But should not exist in clauses'
+    },
+    {
+        'type': 'clause',
+        'regex': '^[A-Z]',
+        'response': True,
+        'error': "First Letter doesn't start with a capital letter"
+    },
+    {
+        'type': 'subclause',
+        'regex': '^[a-z]',
+        'response': True,
+        'error': "First Letter doesn't start with a small letter"
+    },
+    {
+        'type': 'all',
+        'regex': 'member state',
+        'response': False,
+        'error': 'Member States should be capitalised'
+    },
+    {
+        'type': 'all',
+        'regex': 'EC',
+        'response': False,
+        'error': 'European Commission should be in full'
+    },
+    {
+        'type': 'all',
+        'regex': 'EP',
+        'response': False,
+        'error': 'European Parliament should be in full'
+    },
+    {
+        'type': 'all',
+        'regex': 'european commission',
+        'response': False,
+        'error': 'European Commission should be capitalized'
+    },
+    {
+        'type': 'all',
+        'regex': 'european parliament',
+        'response': False,
+        'error': 'European Parliament should be capitalized'
+    },
+    {
+        'type': 'all',
+        'regex': 'MS',
+        'response': False,
+        'error': 'Member States should be in full'
+    }
+]
 
 
 def breadcrumbs(session_id=0, committee_id=0, clause_id=0):
@@ -166,9 +225,9 @@ def render_template(template_name, context):
         for i in range(2):
             process = Popen(
                 ['xelatex', '-output-directory', tempdir],
-                stdin=PIPE,
-                stdout=PIPE,
+                stdin=PIPE
             )
+            pdb.set_trace()
             process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
             pdf = f.read()
@@ -337,11 +396,11 @@ def clause(request, clause_id):
                 else:
                     sub = None
 
-                c = Clause.objects.get(pk=clause_id)
-                c.position = form.cleaned_data['position']
-                c.subtopic = sub
-                c.save()
-                content = ClauseContent(clause=c, content=form.cleaned_data['content'])
+                cls = Clause.objects.get(pk=clause_id)
+                cls.position = form.cleaned_data['position']
+                cls.subtopic = sub
+                cls.save()
+                content = ClauseContent(clause=cls, content=form.cleaned_data['content'])
                 content.save()
                 messages.add_message(request, messages.SUCCESS, 'Edit Successful')
                 return HttpResponseRedirect(reverse('res:clause', args=[clause_id]))
@@ -418,6 +477,8 @@ def clause(request, clause_id):
                 'diffs': zip(sccdiff, scc)
             })
 
+        errors = check_clause(thisclause)
+
         addsubform = AddSubClause()
         context = {
             'contents': contents,
@@ -427,10 +488,69 @@ def clause(request, clause_id):
             'subclauses': subsdiffs,
             'diffs': zip(diffs, contents),
             'last': contents[len(contents) - 1],
-            'bread': breadcrumbs(com.session.pk, com.pk, clause_id)
+            'bread': breadcrumbs(com.session.pk, com.pk, clause_id),
+            'errors': errors,
         }
 
         return render(request, 'res/clause.html', context)
+
+
+def check_clause(thisclause):
+    errors = []
+    subs = SubClause.objects.filter(clause=thisclause).filter(visible=True)
+    for cls in clause_checks:
+        if cls['type'] == 'clause' or cls['type'] == 'all':
+            m = re.search(cls['regex'], thisclause.resolution_content())
+            if cls['response']:
+                if m is None:
+                    errors.append(cls['error'])
+            else:
+                if m is not None:
+                    errors.append(cls['error'])
+    if thisclause.clause_type == 'IC':
+        clslastpos = Clause.objects.filter(committee=thisclause.committee).filter(visible=True).order_by('-position')[0].position
+        if thisclause.position != clslastpos and not subs:
+            m = re.search('[^,]$', thisclause.resolution_content())
+            if m is not None:
+                errors.append("IC's should end with ,")
+        elif thisclause.position == clslastpos and not subs:
+            m = re.search('[^;]$', thisclause.resolution_content())
+            if m is not None:
+                errors.append("Last IC should end with a ;")
+        else:
+            m = re.search('[^:]$', thisclause.resolution_content())
+            if m is not None:
+                errors.append("IC's that have subtopics should end with :")
+    else:
+        last_sub = Subtopic.objects.filter(committee=thisclause.committee).filter(visible=True).order_by('-position')[0]
+        if thisclause.subtopic != last_sub and not subs:
+            m = re.search('[^;]$', thisclause.resolution_content())
+            if m is not None:
+                errors.append("OC's should end with a ;")
+        if thisclause.subtopic != last_sub and subs:
+            m = re.search('[^:]$', thisclause.resolution_content())
+            if m is not None:
+                errors.append("OC's with subtopics should end with a :")
+        elif thisclause.subtopic == last_sub:
+            lastsubpos = Clause.objects.filter(subtopic=last_sub).filter(visible=True).order_by('-position')[0].position
+            if thisclause.position != lastsubpos and not subs:
+                m = re.search('[^;]$', thisclause.resolution_content())
+                if m is not None:
+                    errors.append("OC's should end with a ;")
+            elif thisclause.position != lastsubpos and subs:
+                m = re.search('[^:]$', thisclause.resolution_content())
+                if m is not None:
+                    errors.append("OC's with subtopics should end with a :")
+            elif thisclause.position == lastsubpos and not subs:
+                m = re.search('[^\.]$', thisclause.resolution_content())
+                if m is not None:
+                    errors.append("Last OC should end with a full stop")
+            else:
+                m = re.search('[^:]$', thisclause.resolution_content())
+                if m is not None:
+                    errors.append("OC's with subtopics should end with a :")
+    return errors
+
 
 def show_diff(seqm):
     """Unify operations between two compared strings
