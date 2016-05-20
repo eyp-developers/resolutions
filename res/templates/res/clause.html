@@ -50,6 +50,33 @@
     </tbody>
 </table>
 
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Error</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% if errors %}
+    {% for error in errors %}
+    <tr>
+        <td class="danger">
+            {{ error }}
+        </td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+        <td>
+            No Errors!
+        </td>
+    </tr>
+    {% endif %}
+    </tbody>
+</table>
+
+
 <br>
 
 <h2>Subclauses:</h2>
