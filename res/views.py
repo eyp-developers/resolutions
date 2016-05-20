@@ -193,14 +193,12 @@ def singleresolutioncontext(committee_id):
         }
         subs.append(sub)
 
-    data = {
-            'full_name': com.full_name(),
+    data = {'full_name': com.full_name(),
             'topic': com.topic,
             'submitted_by': com.submitted_by,
             'ics': intro,
             'no_subtopic': no_subtopic,
-            'subtopics': subs
-        }
+            'subtopics': subs}
     return data
 
 
@@ -223,11 +221,12 @@ def render_template(template_name, context):
         # run latex twice to generate the TOC properly.
         # Finally read the generated pdf.
         for i in range(2):
+            out = tempfile.NamedTemporaryFile(delete=False)
             process = Popen(
                 ['xelatex', '-output-directory', tempdir],
-                stdin=PIPE
+                stdin=PIPE,
+                stdout=out,
             )
-            pdb.set_trace()
             process.communicate(rendered_tpl)
         with open(os.path.join(tempdir, 'texput.pdf'), 'rb') as f:
             pdf = f.read()
