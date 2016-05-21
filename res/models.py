@@ -104,20 +104,28 @@ class Committee(models.Model):
     position = models.PositiveSmallIntegerField()
 
     #All options for possible statuses in which the committee currently is
+    #IP stands for "In Progress"
     NO_CHECK = 'NO_CHECK'
+    SELF_CHECK_IP = 'SELF_CHECK_IP'
     SELF_CHECK = 'SELF_CHECK'
+    BUDDY_CHECK_IP = 'BUDDY_CHECK_IP'
     BUDDY_CHECK = 'BUDDY_CHECK'
+    VP_CHECK_IP = 'VP_CHECK_IP'
     VP_CHECK = 'VP_CHECK'
+    PRES_CHECK_IP = 'PRES_CHECK_IP'
     PRES_CHECK = 'PRES_CHECK'
     CHECK_STATUSES = (
         (NO_CHECK, 'Not checked'),
-        (SELF_CHECK, 'Self checked'),
-        (BUDDY_CHECK, 'Buddy checked'),
-        (VP_CHECK, 'VP checked'),
-        (PRES_CHECK, 'Presidential checked'),
+        (SELF_CHECK_IP, 'Self-Check in Progress'),
+        (SELF_CHECK, 'Waiting for Buddy-Check'),
+        (BUDDY_CHECK_IP, 'Buddy-Check in Progress'),
+        (BUDDY_CHECK, 'Waiting for VP-Check'),
+        (VP_CHECK_IP, 'VP-Check in Progress'),
+        (VP_CHECK, 'Waiting for Presidential-Check'),
+        (PRES_CHECK, 'Finished'),
     )
 
-    check_status = models.CharField(max_length = 20, choices= CHECK_STATUSES, default = NO_CHECK)
+    check_status = models.CharField(max_length = 20, choices = CHECK_STATUSES, default = NO_CHECK)
 
     def short_name(self):
         if self.number is None:
