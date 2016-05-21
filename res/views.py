@@ -448,3 +448,21 @@ seqm is a difflib.SequenceMatcher instance whose a & b are strings"""
         else:
             raise RuntimeError, "unexpected opcode"
     return ''.join(output)
+
+
+
+def check_overview(request, session_id):
+    """ This view replaces the traditional flipchart and shows all check statuses on one page """
+    session = Session.objects.get(pk=session_id)
+    committees = Committee.objects.filter(session=session)
+
+    total_progress = 0
+
+    for committee in committees:
+        total_progress += committee.get_numerical_check_status()
+
+    total_progress = total_progress / committees.count()
+
+
+    context = {'committees': committees, 'session':session, 'bread': breadcrumbs(session_id), 'total_progress': total_progress}
+    return render(request, 'res/check_overview.html', context)
