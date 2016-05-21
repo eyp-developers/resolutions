@@ -139,6 +139,23 @@ class Committee(models.Model):
         else:
             return str(self.get_name_display()) + ' ' + unicode(self.get_number_display())
 
+    def display_check_status(self):
+        return self.get_check_status_display()
+
+
+    def get_numerical_check_status(self):
+        switcher = {
+            self.NO_CHECK: 0,
+            self.SELF_CHECK_IP: 12.5,
+            self.SELF_CHECK: 25,
+            self.BUDDY_CHECK_IP: 37.5,
+            self.BUDDY_CHECK: 50,
+            self.VP_CHECK_IP: 62.5,
+            self.VP_CHECK: 75,
+            self.PRES_CHECK_IP: 87.5,
+            self.PRES_CHECK: 100,
+        }
+        return switcher.get(self.check_status, 0) # if we can't find any match, return 0
     def __unicode__(self):
         return self.short_name()
 
