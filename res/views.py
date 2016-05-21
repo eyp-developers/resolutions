@@ -495,7 +495,6 @@ def clause(request, clause_id):
 
 def check_clause(thisclause):
     errors = []
-    d = enchant.Dict("en_GB")
     subs = SubClause.objects.filter(clause=thisclause).filter(visible=True)
     for cls in clause_checks:
         if cls['type'] == 'clause' or cls['type'] == 'all':
@@ -521,10 +520,10 @@ def check_clause(thisclause):
             if m is not None:
                 errors.append("IC's that have subtopics should end with :")
     else:
-        if Subtopic.objects.filter(committee=thisclause.committee).filter(visible=True) is not None:
+        if Subtopic.objects.filter(committee=thisclause.committee).filter(visible=True):
             last_sub = Subtopic.objects.filter(committee=thisclause.committee).filter(visible=True).order_by('-position')[0]
         else:
-            last_sub = []
+            last_sub = None
         if thisclause.subtopic != last_sub and not subs:
             m = re.search('[^;]$', thisclause.resolution_content())
             if m is not None:
