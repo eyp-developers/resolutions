@@ -6,6 +6,8 @@
 {% block content %}
 
 <a href="{% url 'res:resolution_booklet' session.pk %}" class="btn btn-primary">Download Resolution Booklet</a>
+<a href="{% url 'res:check_overview' session.pk %}" class="btn btn-primary">Progress Overview</a>
+
 
 <br>
 <br>
@@ -20,6 +22,6 @@
     {% endfor %}
 </div>
 {% else %}
-<p>No sessions available..</p>
+<p>No committees available.</p>
 {% endif %}
 {% endblock %}

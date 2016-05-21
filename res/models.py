@@ -103,6 +103,30 @@ class Committee(models.Model):
     #Position of the resolution in the resolution booklet
     position = models.PositiveSmallIntegerField()
 
+    #All options for possible statuses in which the committee currently is
+    #IP stands for "In Progress"
+    NO_CHECK = 'NO_CHECK'
+    SELF_CHECK_IP = 'SELF_CHECK_IP'
+    SELF_CHECK = 'SELF_CHECK'
+    BUDDY_CHECK_IP = 'BUDDY_CHECK_IP'
+    BUDDY_CHECK = 'BUDDY_CHECK'
+    VP_CHECK_IP = 'VP_CHECK_IP'
+    VP_CHECK = 'VP_CHECK'
+    PRES_CHECK_IP = 'PRES_CHECK_IP'
+    PRES_CHECK = 'PRES_CHECK'
+    CHECK_STATUSES = (
+        (NO_CHECK, 'Not checked'),
+        (SELF_CHECK_IP, 'Self-Check in Progress'),
+        (SELF_CHECK, 'Waiting for Buddy-Check'),
+        (BUDDY_CHECK_IP, 'Buddy-Check in Progress'),
+        (BUDDY_CHECK, 'Waiting for VP-Check'),
+        (VP_CHECK_IP, 'VP-Check in Progress'),
+        (VP_CHECK, 'Waiting for Presidential-Check'),
+        (PRES_CHECK, 'Finished'),
+    )
+
+    check_status = models.CharField(max_length = 20, choices = CHECK_STATUSES, default = NO_CHECK)
+
     def short_name(self):
         if self.number is None:
             return unicode(self.name)
@@ -115,8 +139,41 @@ class Committee(models.Model):
         else:
             return str(self.get_name_display()) + ' ' + unicode(self.get_number_display())
 
+    def display_check_status(self):
+        return self.get_check_status_display()
+
+
+    def get_numerical_check_status(self):
+        switcher = {
+            self.NO_CHECK: 0,
+            self.SELF_CHECK_IP: 12.5,
+            self.SELF_CHECK: 25,
+            self.BUDDY_CHECK_IP: 37.5,
+            self.BUDDY_CHECK: 50,
+            self.VP_CHECK_IP: 62.5,
+            self.VP_CHECK: 75,
+            self.PRES_CHECK_IP: 87.5,
+            self.PRES_CHECK: 100,
+        }
+        return switcher.get(self.check_status, 0) # if we can't find any match, return 0
+
+    def get_progress_bar_classes(self):
+        switcher = {
+            self.NO_CHECK: "progress-bar-danger",
+            self.SELF_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.SELF_CHECK: "progress-bar-info",
+            self.BUDDY_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.BUDDY_CHECK: "progress-bar-info",
+            self.VP_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.VP_CHECK: "progress-bar-info",
+            self.PRES_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.PRES_CHECK: "progress-bar-success",
+        }
+        return switcher.get(self.check_status, 0) # if we can't find any match, return 0
+
     def __unicode__(self):
         return self.short_name()
+
 
 
 class Subtopic(models.Model):

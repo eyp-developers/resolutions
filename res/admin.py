@@ -34,7 +34,7 @@ class SessionAdmin(admin.ModelAdmin):
 
 
 class CommitteeAdmin(admin.ModelAdmin):
-    list_display = ('session', 'name', 'number')
+    list_display = ('session', 'name', 'number', 'check_status')
 
 
 class SubtopicAdmin(admin.ModelAdmin):

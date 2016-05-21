@@ -1,0 +1,43 @@
+{% extends 'res/base.html' %}
+{% load staticfiles %}
+
+{% block page_title %}{{ session.name }} Check Overview{% endblock %}
+
+{% block page_head %}
+<meta http-equiv="refresh" content="5"> <!-- Refresh every 15 minutes -->
+{% endblock %}
+
+{% block content %}
+
+<h1>Check Overview</h1>
+<hr>
+{% if total_progress == 100 %}
+<div class="row">
+  <a href="{% url 'res:resolution_booklet' session.pk %}" class="btn btn-success btn-lg col-xs-12">Download Resolution Booklet!</a>
+</div>
+{% endif %}
+{% if committees %}
+<h3>Total Progress: {{ total_progress }}%</h3>
+<div class="progress" style="height: 30px;">
+  <div class="progress-bar {% if total_progress == 100 %} progress-bar-success {% else %} progress-bar-warning active progress-bar-striped {% endif %} " role="progressbar" aria-valuenow="{{ total_progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ total_progress}}%;">
+
+  </div>
+</div>
+<div class="row">
+    {% for committee in committees %}
+    <div class="col-md-3">
+      <h2>{{ committee.short_name }}</h2>
+      <div class="progress">
+        <div class="progress-bar {{ committee.get_progress_bar_classes }}" role="progressbar" aria-valuenow="{{ committee.get_numerical_check_status }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ committee.get_numerical_check_status }}%">
+
+        </div>
+      </div>
+      <p>{{ committee.display_check_status }}</p>
+
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No sessions available..</p>
+{% endif %}
+{% endblock %}
