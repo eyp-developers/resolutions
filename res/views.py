@@ -10,7 +10,6 @@ import os
 import shutil
 import difflib
 import re
-import pdb
 from django.conf import settings
 
 from .models import Session, Committee, Clause, ClauseContent, SubClause, SubClauseContent, Subtopic
@@ -496,6 +495,7 @@ def clause(request, clause_id):
 
 def check_clause(thisclause):
     errors = []
+    d = enchant.Dict("en_GB")
     subs = SubClause.objects.filter(clause=thisclause).filter(visible=True)
     for cls in clause_checks:
         if cls['type'] == 'clause' or cls['type'] == 'all':
@@ -521,7 +521,10 @@ def check_clause(thisclause):
             if m is not None:
                 errors.append("IC's that have subtopics should end with :")
     else:
-        last_sub = Subtopic.objects.filter(committee=thisclause.committee).filter(visible=True).order_by('-position')[0]
+        if Subtopic.objects.filter(committee=thisclause.committee).filter(visible=True) is not None:
+            last_sub = Subtopic.objects.filter(committee=thisclause.committee).filter(visible=True).order_by('-position')[0]
+        else:
+            last_sub = []
         if thisclause.subtopic != last_sub and not subs:
             m = re.search('[^;]$', thisclause.resolution_content())
             if m is not None:
