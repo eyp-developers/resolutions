@@ -156,8 +156,24 @@ class Committee(models.Model):
             self.PRES_CHECK: 100,
         }
         return switcher.get(self.check_status, 0) # if we can't find any match, return 0
+
+    def get_progress_bar_classes(self):
+        switcher = {
+            self.NO_CHECK: "progress-bar-danger",
+            self.SELF_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.SELF_CHECK: "progress-bar-info",
+            self.BUDDY_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.BUDDY_CHECK: "progress-bar-info",
+            self.VP_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.VP_CHECK: "progress-bar-info",
+            self.PRES_CHECK_IP: "progress-bar-warning progress-bar-striped active",
+            self.PRES_CHECK: "progress-bar-success",
+        }
+        return switcher.get(self.check_status, 0) # if we can't find any match, return 0
+
     def __unicode__(self):
         return self.short_name()
+
 
 
 class Subtopic(models.Model):
